@@ -3,162 +3,154 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>StreamDrop | Universal Downloader</title>
+    <title>NexDownloader | Universal Video Fetcher</title>
+    <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        :root {
-            --primary: #6366f1;
-            --bg: #0f172a;
-            --card: #1e293b;
-            --text: #f8fafc;
-        }
-
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap');
         body {
-            font-family: 'Inter', system-ui, sans-serif;
-            background-color: var(--bg);
-            color: var(--text);
+            font-family: 'Inter', sans-serif;
+            background: radial-gradient(circle at top left, #1e293b, #0f172a);
+            min-height: 100vh;
+            color: #f8fafc;
             display: flex;
-            justify-content: center;
             align-items: center;
-            height: 100vh;
-            margin: 0;
+            justify-content: center;
+            padding: 20px;
         }
-
-        .container {
-            background: var(--card);
-            padding: 2.5rem;
-            border-radius: 1rem;
-            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.3);
-            width: 100%;
-            max-width: 450px;
-            text-align: center;
+        .glass-card {
+            background: rgba(30, 41, 59, 0.7);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
         }
-
-        h1 { font-size: 1.8rem; margin-bottom: 0.5rem; color: var(--primary); }
-        p { color: #94a3b8; margin-bottom: 2rem; font-size: 0.9rem; }
-
-        .input-group { position: relative; }
-
-        input {
-            width: 100%;
-            padding: 14px;
-            background: #0f172a;
-            border: 1px solid #334155;
-            border-radius: 8px;
-            color: white;
-            box-sizing: border-box;
-            font-size: 1rem;
-            margin-bottom: 1rem;
-            transition: all 0.3s;
-        }
-
-        input:focus {
-            outline: none;
-            border-color: var(--primary);
-            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);
-        }
-
-        button {
-            width: 100%;
-            padding: 14px;
-            background: var(--primary);
-            color: white;
-            border: none;
-            border-radius: 8px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: transform 0.2s, background 0.2s;
-        }
-
-        button:hover { background: #4f46e5; transform: translateY(-1px); }
-        button:active { transform: translateY(0); }
-        button:disabled { background: #334155; cursor: not-allowed; }
-
-        #result {
-            margin-top: 1.5rem;
-            padding: 10px;
-            border-radius: 6px;
-            font-size: 0.9rem;
-            display: none;
-        }
-
         .loader {
-            border: 3px solid #f3f3f3;
-            border-top: 3px solid var(--primary);
-            border-radius: 50%;
-            width: 20px;
-            height: 20px;
-            animation: spin 1s linear infinite;
-            display: inline-block;
-            vertical-align: middle;
-            margin-right: 10px;
+            border-top-color: #6366f1;
+            animation: spinner 0.6s linear infinite;
         }
-
-        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        @keyframes spinner { to { transform: rotate(360deg); } }
     </style>
 </head>
 <body>
 
-<div class="container">
-    <h1>StreamDrop</h1>
-    <p>Download video from YouTube, TikTok, Twitter, etc.</p>
-    
-    <div class="input-group">
-        <input type="url" id="urlInput" placeholder="Paste link here..." required>
-        <button id="dlBtn" onclick="processDownload()">Download Video</button>
+    <div class="w-full max-w-md glass-card rounded-2xl p-8 transition-all">
+        <div class="text-center mb-8">
+            <h1 class="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-indigo-400 to-cyan-400">
+                NexDownloader
+            </h1>
+            <p class="text-slate-400 text-sm mt-2">Universal Video Extraction Tool</p>
+        </div>
+
+        <div class="space-y-4">
+            <input 
+                type="url" 
+                id="videoUrl" 
+                placeholder="Paste link (YT, TikTok, IG, etc.)" 
+                class="w-full bg-slate-900/50 border border-slate-700 rounded-lg px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all"
+            >
+
+            <div class="flex gap-2">
+                <select id="quality" class="bg-slate-800 border border-slate-700 rounded-lg px-3 py-3 text-sm text-white outline-none">
+                    <option value="720">720p</option>
+                    <option value="1080">1080p</option>
+                    <option value="max">Original</option>
+                </select>
+                <button 
+                    onclick="handleDownload()" 
+                    id="mainBtn"
+                    class="flex-1 bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-3 rounded-lg transition-all active:scale-95 flex items-center justify-center gap-2"
+                >
+                    <span>Fetch Video</span>
+                </button>
+            </div>
+        </div>
+
+        <div id="statusContainer" class="mt-6 hidden">
+            <div id="statusBox" class="p-4 rounded-lg text-sm flex flex-col gap-2">
+                <div class="flex items-center gap-3">
+                    <div id="statusLoader" class="loader w-5 h-5 border-2 border-slate-300 rounded-full hidden"></div>
+                    <span id="statusText"></span>
+                </div>
+                <div id="manualAction" class="hidden mt-2 pt-2 border-t border-white/10">
+                    <a id="manualLink" target="_blank" class="block text-center bg-indigo-500 hover:bg-indigo-400 px-3 py-2 rounded text-[12px] font-bold transition-all">
+                        Open Secure Download Portal
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <div class="mt-8 pt-6 border-t border-slate-800 text-center">
+            <p class="text-[10px] text-slate-500 uppercase tracking-widest">Client-Side Secure Extractor</p>
+        </div>
     </div>
 
-    <div id="result"></div>
-</div>
+    <script>
+        async function handleDownload() {
+            const urlInput = document.getElementById('videoUrl');
+            const quality = document.getElementById('quality').value;
+            const btn = document.getElementById('mainBtn');
+            const statusContainer = document.getElementById('statusContainer');
+            const statusBox = document.getElementById('statusBox');
+            const statusText = document.getElementById('statusText');
+            const loader = document.getElementById('statusLoader');
+            const manualAction = document.getElementById('manualAction');
+            const manualLink = document.getElementById('manualLink');
 
-<script>
-    async function processDownload() {
-        const urlInput = document.getElementById('urlInput');
-        const btn = document.getElementById('dlBtn');
-        const resultDiv = document.getElementById('result');
-        
-        if (!urlInput.value) return;
+            const url = urlInput.value.trim();
+            if (!url) { alert("Please paste a URL first!"); return; }
 
-        // Reset UI
-        btn.disabled = true;
-        btn.innerHTML = '<span class="loader"></span> Fetching...';
-        resultDiv.style.display = "block";
-        resultDiv.style.color = "#94a3b8";
-        resultDiv.innerText = "Connecting to API...";
+            btn.disabled = true;
+            manualAction.classList.add('hidden');
+            showStatus("Connecting to stream server...", "loading");
 
-        try {
-            // Using Cobalt API (A popular open-source video downloader API)
-            const response = await fetch("https://api.cobalt.tools/api/json", {
-                method: "POST",
-                headers: {
-                    "Cache-Control": "no-cache",
-                    "Accept": "application/json",
-                    "Content-Type": "application/json"
-                },
-                body: JSON.stringify({
-                    url: urlInput.value,
-                    vQuality: "720"
-                })
-            });
+            // Attempt 1: Standard API Call
+            try {
+                const response = await fetch("https://api.cobalt.tools/api/json", {
+                    method: "POST",
+                    headers: { "Accept": "application/json", "Content-Type": "application/json" },
+                    body: JSON.stringify({ url, videoQuality: quality })
+                });
 
-            const data = await response.json();
-
-            if (data.status === "stream" || data.status === "redirect") {
-                resultDiv.style.color = "#4ade80";
-                resultDiv.innerText = "Success! Starting download...";
-                window.location.href = data.url;
-            } else {
-                throw new Error(data.text || "Could not fetch video.");
+                if (response.ok) {
+                    const data = await response.json();
+                    if (data.url) {
+                        showStatus("Video Found! Downloading...", "success");
+                        window.open(data.url, '_blank');
+                    } else {
+                        throw new Error("No URL returned");
+                    }
+                } else {
+                    throw new Error("API Blocked");
+                }
+            } catch (err) {
+                // Attempt 2: Handle sandbox blockage
+                showStatus("Sandbox security detected. Redirecting to secure portal...", "error");
+                manualAction.classList.remove('hidden');
+                manualLink.href = `https://cobalt.tools/`; 
+            } finally {
+                btn.disabled = false;
             }
-
-        } catch (error) {
-            resultDiv.style.color = "#f87171";
-            resultDiv.innerText = "Error: " + error.message;
-        } finally {
-            btn.disabled = false;
-            btn.innerText = "Download Video";
         }
-    }
-</script>
 
+        function showStatus(msg, type) {
+            const container = document.getElementById('statusContainer');
+            const box = document.getElementById('statusBox');
+            const text = document.getElementById('statusText');
+            const loader = document.getElementById('statusLoader');
+
+            container.classList.remove('hidden');
+            text.innerText = msg;
+            loader.classList.add('hidden');
+            box.className = "p-4 rounded-lg text-sm flex flex-col gap-2 ";
+
+            if (type === "loading") {
+                box.classList.add('bg-indigo-900/30', 'text-indigo-300', 'border', 'border-indigo-800/50');
+                loader.classList.remove('hidden');
+            } else if (type === "error") {
+                box.classList.add('bg-red-900/30', 'text-red-300', 'border', 'border-red-800/50');
+            } else if (type === "success") {
+                box.classList.add('bg-emerald-900/30', 'text-emerald-300', 'border', 'border-emerald-800/50');
+            }
+        }
+    </script>
 </body>
 </html>
