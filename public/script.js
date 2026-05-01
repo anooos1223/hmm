@@ -1,38 +1,36 @@
-async function downloadVideo() {
+async function download() {
     const url = document.getElementById("url").value;
-    const loader = document.getElementById("loader");
+    const format = document.getElementById("format").value;
     const status = document.getElementById("status");
 
     if (!url) {
-        alert("Please enter a URL");
+        alert("Enter URL");
         return;
     }
 
-    loader.style.display = "block";
-    status.innerText = "Processing...";
+    status.innerText = "⏳ Processing...";
 
     try {
-        const response = await fetch("/download", {
+        const res = await fetch("/download", {
             method: "POST",
-            headers: {
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify({ url })
+            headers: {"Content-Type": "application/json"},
+            body: JSON.stringify({ url, format })
         });
 
-        if (!response.ok) throw new Error();
+        if (!res.ok) {
+            const err = await res.json();
+            throw new Error(err.error);
+        }
 
-        const blob = await response.blob();
-        const link = document.createElement("a");
+        const blob = await res.blob();
+        const a = document.createElement("a");
 
-        link.href = window.URL.createObjectURL(blob);
-        link.download = "video.mp4";
-        link.click();
+        a.href = URL.createObjectURL(blob);
+        a.download = format === "mp3" ? "audio.mp3" : "video.mp4";
+        a.click();
 
-        status.innerText = "✅ Download complete!";
-    } catch (error) {
-        status.innerText = "❌ Failed to download";
+        status.innerText = "✅ Done!";
+    } catch (err) {
+        status.innerText = "❌ " + err.message;
     }
-
-    loader.style.display = "none";
 }
