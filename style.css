@@ -1,0 +1,19 @@
+body {
+  font-family: arial;
+}
+header {
+  background-color: teal;
+  color: white;
+  padding: 30px;
+  text-align: center;
+}
+nav a {
+  margin-right: 100px;
+  color: blue;
+  text-decoration: none;
+}
+section {
+  border: 1px solid lightgray;
+  margin-top: 10px;
+  padding: 20px;
+}
